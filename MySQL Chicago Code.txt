@@ -1,0 +1,68 @@
+
+
+--How many Elementary Schools are in the dataset? --
+select count(*) 
+from chicago_public_schools 
+where `Elementary, Middle, or High School` ='ES'
+
+-- What is the highest Safety Score? --
+select MAX(Safety_Score) AS MAX_SAFETY_SCORE 
+from chicago_public_schools;
+
+--Which schools have highest Safety Score?--
+select Name_of_School, Safety_Score 
+from chicago_public_schools 
+where 
+  Safety_Score= (select MAX(Safety_Score) from chicago_public_schools)
+  
+--What are the top 10 schools with the highest "Average Student Attendance"? --
+select Name_of_School, Average_Student_Attendance 
+from chicago_public_schools 
+order by Average_Student_Attendance desc limit 10; 
+
+--Retrieve the list of 5 Schools with the lowest Average Student Attendance sorted in ascending order based on attendance --
+SELECT Name_of_School, Average_Student_Attendance  
+     from chicago_public_schools 
+     order by Average_Student_Attendance 
+     LIMIT 5;
+
+-- Now remove the '%' sign from the above result set for Average Student Attendance column --
+SELECT Name_of_School, REPLACE(Average_Student_Attendance, '%', '') 
+     from chicago_public_schools
+     order by Average_Student_Attendance 
+    LIMIT 5
+    
+-- Which Schools have Average Student Attendance lower than 70%? -- 
+SELECT Name_of_School, Average_Student_Attendance 
+from chicago_public_schools
+    where CAST(REPLACE(Average_Student_Attendance, '%', '')  AS DOUBLE) < 70
+    order by Average_Student_Attendance
+    
+-- Get the total College Enrollment for each Community Area -- 
+select Community_Area_Name, sum(College_Enrollment) AS TOTAL_ENROLLMENT 
+   from chicago_public_schools 
+   group by Community_Area_Name 
+ 
+-- Get the 5 Community Areas with the least total College Enrollment sorted in ascending order --
+select Community_Area_Name, sum(College_Enrollment) AS TOTAL_ENROLLMENT 
+   from chicago_public_schools 
+   group by Community_Area_Name 
+   order by TOTAL_ENROLLMENT asc 
+   LIMIT 5
+
+-- List 5 schools with lowest safety score. --
+SELECT name_of_school, safety_score
+FROM chicago_public_schools
+ORDER BY safety_score
+LIMIT 5
+
+-- Get the hardship index for the community area which has College Enrollment of 4368 --
+select hardship_index 
+from chicago_socioeconomic_data CD, 
+chicago_public_schools CPS 
+where CD.community_area_number = CPS.community_area_number and college_enrollment = 4368
+
+-- Get the hardship index for the community area which has the school with the highest enrollment. --
+select community_area_number, community_area_name, hardship_index from chicago_socioeconomic_data 
+   where community_area_number in 
+   ( select community_area_number from chicago_public_schools where COLLEGE_ENROLLMENT = (select MAX(COLLEGE_ENROLLMENT) from chicago_public_schools)  ) ;
